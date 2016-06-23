@@ -13,7 +13,7 @@
   :font-family "Helvetica, sans-serif",
   :height "160px"})
 
-(def style-body {})
+(def style-body {:box-shadow (str "0 0 1px " (hsl 0 0 0))})
 
 (def style-section {:display "flex"})
 

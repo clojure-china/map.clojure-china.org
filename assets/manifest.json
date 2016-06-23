@@ -1,9 +1,9 @@
 {
-  "short_name": "MVC Works",
-  "name": "MVC Works",
+  "short_name": "clojure-china",
+  "name": "Clojure China",
   "icons": [
     {
-      "src": "mvc-works-192x192.png",
+      "src": "http://clojure-china.org/uploads/default/3/02eee0f0cf48c269.gif",
       "sizes": "192x192"
     }
   ],

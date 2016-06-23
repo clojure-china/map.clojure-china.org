@@ -4,14 +4,12 @@
                  [org.clojure/clojure       "1.8.0"       :scope "test"]
                  [adzerk/boot-cljs          "1.7.228-1"   :scope "test"]
                  [adzerk/boot-reload        "0.4.8"       :scope "test"]
-                 [cirru/boot-cirru-sepal    "0.1.8"       :scope "test"]
                  [adzerk/boot-test          "1.1.1"       :scope "test"]
                  [mvc-works/hsl             "0.1.2"]
-                 [mvc-works/respo           "0.2.2"]])
+                 [mvc-works/respo           "0.2.3"]])
 
 (require '[adzerk.boot-cljs   :refer [cljs]]
          '[adzerk.boot-reload :refer [reload]]
-         '[cirru-sepal.core   :refer [transform-cirru]]
          '[respo.alias        :refer [html head title script style meta' div link body]]
          '[respo.render.static-html :refer [make-html make-string]]
          '[adzerk.boot-test   :refer :all]
@@ -22,17 +20,10 @@
 (task-options!
   pom {:project     'clojure-china/sitemap
        :version     +version+
-       :description "Workflow"
+       :description "Sitemap for Clojure China"
        :url         "https://github.com/clojure-china/sitemap"
        :scm         {:url "https://github.com/clojure-china/sitemap"}
        :license     {"MIT" "http://opensource.org/licenses/mit-license.php"}})
-
-(deftask compile-cirru []
-  (set-env!
-    :source-paths #{"cirru/"})
-  (comp
-    (transform-cirru)
-    (target :dir #{"compiled/"})))
 
 (defn use-text [x] {:attrs {:innerHTML x}})
 (defn html-dsl [data fileset content]
@@ -65,23 +56,22 @@
         (add-resource tmp)
         (commit!)))))
 
-; ; this one is special
-; (set-env!
-;   :source-paths #{"compiled/src"})
-; (require '[sitemap.component.container :refer [comp-container]])
-; (deftask html-only []
-;   (comp
-;     (html-file :data {:build? true} :content (make-string (comp-container nil)))
-;     (target)))
+; this one is special
+(set-env!
+  :source-paths #{"compiled/src"})
+(require '[sitemap.component.container :refer [comp-container]])
+(deftask html-only []
+  (comp
+    (html-file :data {:build? true} :content (make-string (comp-container nil)))
+    (target)))
 
 (deftask dev []
   (set-env!
     :asset-paths #{"assets"}
-    :source-paths #{"cirru/src"})
+    :source-paths #{"compiled/src"})
   (comp
     (html-file :data {:build? false})
     (watch)
-    (transform-cirru)
     (reload :on-jsload 'sitemap.core/on-jsload)
     (cljs)
     (target)))
@@ -89,9 +79,8 @@
 (deftask build-simple []
   (set-env!
     :asset-paths #{"assets"}
-    :source-paths #{"cirru/src"})
+    :source-paths #{"compiled/src"})
   (comp
-    (transform-cirru)
     (cljs :optimizations :simple)
     (html-file :data {:build? false})
     (target)))
@@ -99,11 +88,10 @@
 (deftask build-advanced []
   (set-env!
     :asset-paths #{"assets"}
-    :source-paths #{"cirru/src"})
+    :source-paths #{"compiled/src"})
   (comp
-    (transform-cirru)
     (cljs :optimizations :advanced)
-    (html-file :data {:build? true})
+    (html-file :data {:build? true} :content (make-string (comp-container nil)))
     (target)))
 
 (deftask rsync []
@@ -118,9 +106,8 @@
 
 (deftask build []
   (set-env!
-    :source-paths #{"cirru/src"})
+    :source-paths #{"compiled/src"})
   (comp
-    (transform-cirru)
     (pom)
     (jar)
     (install)
@@ -135,8 +122,7 @@
 
 (deftask watch-test []
   (set-env!
-    :source-paths #{"cirru/src" "cirru/test"})
+    :source-paths #{"compiled/src" "compiled/test"})
   (comp
     (watch)
-    (transform-cirru)
-    (test :namespaces '#{boot-workflow.test})))
+    (test :namespaces '#{sitemap.test})))
