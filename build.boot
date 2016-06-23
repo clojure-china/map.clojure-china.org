@@ -30,12 +30,14 @@
   (make-html
     (html {}
     (head {}
-      (title (use-text "Site map"))
+      (title (use-text "Clojure 中文社区地图, ClojureScript, 函数式编程"))
       (link {:attrs {:rel "icon" :type "image/png" :href "mvc-works-192x192.png"}})
       (if (:build? data)
         (link (:attrs {:rel "manifest" :href "manifest.json"})))
       (meta'{:attrs {:charset "utf-8"}})
       (meta' {:attrs {:name "viewport" :content "width=device-width, initial-scale=1"}})
+      (meta' {:attrs {:name "description" :content "Clojure 中文社区地图, 导航, ClojureScript, 函数式编程"}})
+      (meta' {:attrs {:name "language" :content "zh-cn"}})
       (style (use-text "body {margin: 0;}"))
       (style (use-text "body * {box-sizing: border-box;}"))
       (script {:attrs {:id "config" :type "text/edn" :innerHTML (pr-str data)}}))
@@ -96,7 +98,8 @@
 
 (deftask rsync []
   (with-pre-wrap fileset
-    (sh "rsync" "-r" "target/" "tiye:clojure-china.org/nav.clojure-china.org" "--exclude" "main.out" "--delete")
+    ; (sh "rsync" "-r" "target/" "tiye:clojure-china.org/nav.clojure-china.org" "--exclude" "main.out" "--delete")
+    (sh "rsync" "-r" "target/" "tiye:repo/clojure-china/map.clojure-china.org" "--exclude" "main.out" "--delete")
     fileset))
 
 (deftask send-tiye []
