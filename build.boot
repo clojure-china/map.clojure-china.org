@@ -1,12 +1,12 @@
 
 (set-env!
- :dependencies '[[org.clojure/clojurescript "1.9.36"      :scope "test"]
+ :dependencies '[[org.clojure/clojurescript "1.9.89"      :scope "test"]
                  [org.clojure/clojure       "1.8.0"       :scope "test"]
                  [adzerk/boot-cljs          "1.7.228-1"   :scope "test"]
-                 [adzerk/boot-reload        "0.4.8"       :scope "test"]
+                 [adzerk/boot-reload        "0.4.11"      :scope "test"]
                  [adzerk/boot-test          "1.1.1"       :scope "test"]
                  [mvc-works/hsl             "0.1.2"]
-                 [mvc-works/respo           "0.2.3"]])
+                 [respo                     "0.3.8"]])
 
 (require '[adzerk.boot-cljs   :refer [cljs]]
          '[adzerk.boot-reload :refer [reload]]
@@ -74,7 +74,8 @@
   (comp
     (html-file :data {:build? false})
     (watch)
-    (reload :on-jsload 'sitemap.core/on-jsload)
+    (reload :on-jsload 'sitemap.core/on-jsload
+            :cljs-asset-path ".")
     (cljs)
     (target)))
 
@@ -99,7 +100,7 @@
 (deftask rsync []
   (with-pre-wrap fileset
     ; (sh "rsync" "-r" "target/" "tiye:clojure-china.org/nav.clojure-china.org" "--exclude" "main.out" "--delete")
-    (sh "rsync" "-r" "target/" "tiye:repo/clojure-china/map.clojure-china.org" "--exclude" "main.out" "--delete")
+    (sh "rsync" "-r" "target/" "tiye.me:repo/clojure-china/map.clojure-china.org" "--exclude" "main.out" "--delete")
     fileset))
 
 (deftask send-tiye []

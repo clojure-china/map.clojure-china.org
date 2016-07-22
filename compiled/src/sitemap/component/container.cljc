@@ -4,14 +4,14 @@
             [respo.alias :refer [create-comp create-element div span a]]
             [sitemap.util.text :refer [text]]))
 
-(def style-container {})
+(def style-container
+  {:font-family "Helvetica Neue, PingFang SC, Microsoft Yahei, 微软雅黑, STXihei, 华文细黑, sans-serif"})
 
 (def style-header
  {:color (hsl 0 0 100),
   :font-size "30px",
   :text-align "center",
   :background-color (hsl 89 67 57),
-  :font-family "Helvetica, sans-serif",
   :line-height "160px"
   :height "160px"})
 
