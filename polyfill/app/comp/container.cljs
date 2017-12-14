@@ -1,8 +1,8 @@
 
-(ns sitemap.component.container
+(ns app.comp.container
   (:require [hsl.core :refer [hsl]]
-            [respo.alias :refer [create-comp create-element div span a]]
-            [sitemap.util.text :refer [text]]))
+            [respo.macros :refer [defcomp <> div span a]]
+            [app.util.text :refer [text]]))
 
 (def style-container
   {:font-family "Helvetica Neue, PingFang SC, Microsoft Yahei, 微软雅黑, STXihei, 华文细黑, sans-serif"})
@@ -48,17 +48,17 @@
   :display "block"})
 
 (defn address [a-text a-link]
-  (a {:style style-link, :attrs {:href a-link :target "_blanck"}} (text a-text)))
+  (a {:style style-link, :href a-link :target "_blanck"} (text a-text)))
 
-(defn render [store]
-  (fn [state mutate]
+(defcomp comp-container [reel]
+  (let [store (:store reel)]
     (div
       {:style style-container}
       (div {:style style-header} (text "Clojure 中文社区地图"))
       (div {:style style-hint}
         (a
-          {:attrs {:href "https://github.com/clojure-china/map.clojure-china.org"
-                   :target "_blanck"}
+          {:href "https://github.com/clojure-china/map.clojure-china.org"
+           :target "_blanck"
            :style style-a}
           (text "Fork 这个页面")))
       (div
@@ -96,5 +96,3 @@
             (address "Slack clojure-china channel" "https://clojurians.slack.com/messages/clojure-china")
             (address "知乎 Clojure 标签" "https://www.zhihu.com/topic/19597039/hot")))
         (div {:style style-section})))))
-
-(def comp-container (create-comp :container render))

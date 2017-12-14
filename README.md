@@ -14,22 +14,9 @@ http://nav.clj.im
 
 Fork and edit Clojure code, and send PR!
 
-### Develop
+### Workflow
 
-Hot reload page:
-
-```bash
-boot dev
-# open target/index.html
-```
-
-Generate HTML:
-
-```bash
-boot html-only
-# upload target
-# read `boot rsync`
-```
+https://github.com/mvc-works/coworkflow
 
 ### License
 
