@@ -1,0 +1,6 @@
+
+{:host "tiye.me"
+ :uploads [{:from "dist/*"
+            :to "cdn/map.clojure-china.org/"}
+           {:from "dist/{index.html,manifest.json}"
+            :to "repo/clojure-china/map.clojure-china.org/"}]}

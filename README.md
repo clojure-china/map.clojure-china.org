@@ -6,9 +6,9 @@ Site map for Clojure China
 
 Welcome to Clojure China, here's a map in Chinese...
 
-http://nav.clojure-china.org
+http://map.clojure-china.org
 
-http://nav.clj.im
+http://map.clj.im
 
 ### Contribute
 
@@ -16,7 +16,7 @@ Fork and edit Clojure code, and send PR!
 
 ### Workflow
 
-https://github.com/mvc-works/coworkflow
+https://github.com/mvc-works/calcit-workflow
 
 ### License
 

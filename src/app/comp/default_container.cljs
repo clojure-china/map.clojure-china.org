@@ -2,8 +2,7 @@
 (ns app.comp.default-container
   (:require [hsl.core :refer [hsl]]
             [respo-ui.style :as ui]
-            [respo.macros :refer [defcomp cursor-> <> div button textarea span]]
-            [verbosely.core :refer [verbosely!]]
+            [respo.core :refer [defcomp cursor-> <> div button textarea span]]
             [respo.comp.space :refer [=<]]
             [reel.comp.reel :refer [comp-reel]]))
 
