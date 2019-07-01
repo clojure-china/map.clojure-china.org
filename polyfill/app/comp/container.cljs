@@ -1,7 +1,7 @@
 
 (ns app.comp.container
   (:require [hsl.core :refer [hsl]]
-            [respo.macros :refer [defcomp <> div span a]]
+            [respo.core :refer [defcomp <> div span a]]
             [app.util.text :refer [text]]))
 
 (def style-container

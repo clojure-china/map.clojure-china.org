@@ -1,10 +1,10 @@
 {
-  "short_name": "CoWorkflow",
-  "name": "CoWorkflow",
+  "short_name": "clojure-china",
+  "name": "Clojure China",
   "icons": [
     {
-      "src": "http://cdn.tiye.me/logo/mvc-works.png",
-      "sizes": "320x320"
+      "src": "http://cdn.tiye.me/logo/cljs.png",
+      "sizes": "192x192"
     }
   ],
   "start_url": "index.html",

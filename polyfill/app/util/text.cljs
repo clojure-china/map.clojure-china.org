@@ -1,5 +1,5 @@
 
 (ns app.util.text
-  (:require [respo.macros :refer [span]]))
+  (:require [respo.core :refer [span]]))
 
 (defn text [content] (span {:inner-text content}))
