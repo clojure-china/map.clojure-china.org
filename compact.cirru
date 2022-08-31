@@ -1,17 +1,14 @@
 
 {} (:package |app)
-  :configs $ {} (:init-fn |app.main/main!) (:reload-fn |app.main/reload!)
+  :configs $ {} (:init-fn |app.main/main!) (:reload-fn |app.main/reload!) (:version |0.0.1)
     :modules $ [] |respo.calcit/ |lilac/ |memof/ |respo-ui.calcit/ |respo-markdown.calcit/ |reel.calcit/
-    :version |0.0.1
+  :entries $ {}
   :files $ {}
     |app.comp.container $ {}
-      :ns $ quote
-        ns app.comp.container $ :require
-          respo-ui.core :refer $ hsl
-          respo.core :refer $ defcomp <> div span a
       :defs $ {}
-        |style-resources $ quote
-          def style-resources $ {} (:padding-left |40px)
+        |address $ quote
+          defn address (a-text a-link)
+            a $ {} (:style style-link) (:href a-link) (:inner-text a-text) (:target |_blank)
         |comp-container $ quote
           defcomp comp-container (reel)
             let
@@ -73,13 +70,10 @@
           def style-a $ {}
             :color $ hsl 200 40 70
             :text-decoration |none
-        |address $ quote
-          defn address (a-text a-link)
-            a $ {} (:style style-link) (:href a-link) (:inner-text a-text) (:target |_blank)
-        |style-container $ quote
-          def style-container $ {} (:font-family "|Helvetica Neue, PingFang SC, Microsoft Yahei, 微软雅黑, STXihei, 华文细黑, sans-serif")
         |style-category $ quote
           def style-category $ {} (:font-size |32px) (:font-weight |bold) (:line-height 4)
+        |style-container $ quote
+          def style-container $ {} (:font-family "|Helvetica Neue, PingFang SC, Microsoft Yahei, 微软雅黑, STXihei, 华文细黑, sans-serif")
         |style-header $ quote
           def style-header $ {}
             :color $ hsl 0 0 100
@@ -88,55 +82,40 @@
             :background-color $ hsl 89 67 57
             :line-height |160px
             :height |160px
-        |style-section $ quote
-          def style-section $ {} (:margin |auto) (:padding |40px) (:max-width |400px)
         |style-hint $ quote
           def style-hint $ {} (:text-align |center) (:font-size |12px) (:line-height 3)
             :background-color $ hsl 120 40 92
         |style-link $ quote
           def style-link $ {} (:line-height 2.4) (:font-size |18px) (:text-decoration |none) (:display |block)
-    |app.schema $ {}
-      :ns $ quote (ns app.schema)
-      :defs $ {}
-        |store $ quote
-          def store $ {}
-            :states $ {}
-            :content |
-    |app.updater $ {}
+        |style-resources $ quote
+          def style-resources $ {} (:padding-left |40px)
+        |style-section $ quote
+          def style-section $ {} (:margin |auto) (:padding |40px) (:max-width |400px)
       :ns $ quote
-        ns app.updater $ :require
-          [] respo.cursor :refer $ [] update-states
+        ns app.comp.container $ :require
+          respo-ui.core :refer $ hsl
+          respo.core :refer $ defcomp <> div span a
+    |app.config $ {}
       :defs $ {}
-        |updater $ quote
-          defn updater (store op op-data op-id op-time)
-            case-default op
-              do (println "\"Unknown op:" op) store
-              :states $ update-states store op-data
-              :content $ assoc store :content op-data
+        |cdn? $ quote
+          def cdn? $ cond
+              exists? js/window
+              , false
+            (exists? js/process) (= "\"true" js/process.env.cdn)
+            :else false
+        |dev? $ quote
+          def dev? $ = "\"dev" (get-env "\"mode" "\"release")
+        |site $ quote
+          def site $ {} (:dev-ui "\"http://localhost:8100/main-fonts.css") (:release-ui "\"http://cdn.tiye.me/favored-fonts/main-fonts.css") (:cdn-url "\"http://cdn.tiye.me/map.clojure-china.org/") (:title "\"Clojure 中文社区地图, ClojureScript, 函数式编程") (:icon "\"http://cdn.tiye.me/logo/cljs.png") (:storage-key "\"map.clj.im")
+      :ns $ quote (ns app.config)
     |app.main $ {}
-      :ns $ quote
-        ns app.main $ :require
-          [] respo.core :refer $ [] render! clear-cache! realize-ssr!
-          [] app.comp.container :refer $ [] comp-container
-          [] app.updater :refer $ [] updater
-          [] app.schema :as schema
-          [] reel.util :refer $ [] listen-devtools!
-          [] reel.core :refer $ [] reel-updater refresh-reel
-          [] reel.schema :as reel-schema
-          [] app.config :as config
-          "\"./calcit.build-errors" :default build-errors
-          "\"bottom-tip" :default hud!
       :defs $ {}
-        |render-app! $ quote
-          defn render-app! () $ render! mount-target (comp-container @*reel) dispatch!
-        |persist-storage! $ quote
-          defn persist-storage! (? e)
-            .setItem js/localStorage (:storage-key config/site)
-              format-cirru-edn $ :store @*reel
-        |mount-target $ quote
-          def mount-target $ .querySelector js/document |.app
         |*reel $ quote
           defatom *reel $ -> reel-schema/reel (assoc :base schema/store) (assoc :store schema/store)
+        |dispatch! $ quote
+          defn dispatch! (op op-data)
+            when config/dev? $ println "\"Dispatch:" op
+            reset! *reel $ reel-updater updater @*reel op op-data
         |main! $ quote
           defn main! ()
             println "\"Running mode:" $ if config/dev? "\"dev" "\"release"
@@ -150,12 +129,12 @@
               when (some? raw)
                 dispatch! :hydrate-storage $ parse-cirru-edn raw
             println "|App started."
-        |snippets $ quote
-          defn snippets () $ println config/cdn?
-        |dispatch! $ quote
-          defn dispatch! (op op-data)
-            when config/dev? $ println "\"Dispatch:" op
-            reset! *reel $ reel-updater updater @*reel op op-data
+        |mount-target $ quote
+          def mount-target $ .querySelector js/document |.app
+        |persist-storage! $ quote
+          defn persist-storage! (? e)
+            .setItem js/localStorage (:storage-key config/site)
+              format-cirru-edn $ :store @*reel
         |reload! $ quote
           defn reload! () $ if (nil? build-errors)
             do (remove-watch *reel :changes) (clear-cache!)
@@ -163,25 +142,29 @@
               reset! *reel $ refresh-reel @*reel schema/store updater
               hud! "\"ok~" "\"Ok"
             hud! "\"error" build-errors
+        |render-app! $ quote
+          defn render-app! () $ render! mount-target (comp-container @*reel) dispatch!
         |repeat! $ quote
           defn repeat! (duration cb)
             js/setTimeout
               fn () (cb)
                 repeat! (* 1000 duration) cb
               * 1000 duration
-    |app.page $ {}
+        |snippets $ quote
+          defn snippets () $ println config/cdn?
       :ns $ quote
-        ns app.page
-          :require
-            [] respo.render.html :refer $ [] make-string
-            [] shell-page.core :refer $ [] make-page spit slurp
-            [] app.comp.container :refer $ [] comp-container
-            [] app.schema :as schema
-            [] reel.schema :as reel-schema
-            [] cljs.reader :refer $ [] read-string
-            [] app.config :as config
-            [] cumulo-util.build :refer $ [] get-ip!
-          :require-macros $ [] clojure.core.strint :refer ([] <<)
+        ns app.main $ :require
+          [] respo.core :refer $ [] render! clear-cache! realize-ssr!
+          [] app.comp.container :refer $ [] comp-container
+          [] app.updater :refer $ [] updater
+          [] app.schema :as schema
+          [] reel.util :refer $ [] listen-devtools!
+          [] reel.core :refer $ [] reel-updater refresh-reel
+          [] reel.schema :as reel-schema
+          [] app.config :as config
+          "\"./calcit.build-errors" :default build-errors
+          "\"bottom-tip" :default hud!
+    |app.page $ {}
       :defs $ {}
         |base-info $ quote
           def base-info $ {}
@@ -189,6 +172,18 @@
             :icon $ :icon config/site
             :ssr nil
             :inline-html nil
+        |dev-page $ quote
+          defn dev-page () $ make-page |
+            merge base-info $ {}
+              :styles $ [] (<< "\"http://~(get-ip!):8100/main.css") "\"/entry/main.css"
+              :scripts $ [] "\"/client.js"
+              :inline-styles $ []
+        |main! $ quote
+          defn main! ()
+            println "\"Running mode:" $ if config/dev? "\"dev" "\"release"
+            if config/dev?
+              spit "\"target/index.html" $ dev-page
+              spit "\"dist/index.html" $ prod-page
         |prod-page $ quote
           defn prod-page () $ let
               reel $ -> reel-schema/reel (assoc :base schema/store) (assoc :store schema/store)
@@ -202,28 +197,33 @@
                 :scripts $ map ("#()" -> % :output-name prefix-cdn) assets
                 :ssr "\"respo-ssr"
                 :inline-styles $ [] (slurp "\"./entry/main.css")
-        |main! $ quote
-          defn main! ()
-            println "\"Running mode:" $ if config/dev? "\"dev" "\"release"
-            if config/dev?
-              spit "\"target/index.html" $ dev-page
-              spit "\"dist/index.html" $ prod-page
-        |dev-page $ quote
-          defn dev-page () $ make-page |
-            merge base-info $ {}
-              :styles $ [] (<< "\"http://~(get-ip!):8100/main.css") "\"/entry/main.css"
-              :scripts $ [] "\"/client.js"
-              :inline-styles $ []
-    |app.config $ {}
-      :ns $ quote (ns app.config)
+      :ns $ quote
+        ns app.page
+          :require
+            [] respo.render.html :refer $ [] make-string
+            [] shell-page.core :refer $ [] make-page spit slurp
+            [] app.comp.container :refer $ [] comp-container
+            [] app.schema :as schema
+            [] reel.schema :as reel-schema
+            [] cljs.reader :refer $ [] read-string
+            [] app.config :as config
+            [] cumulo-util.build :refer $ [] get-ip!
+          :require-macros $ [] clojure.core.strint :refer ([] <<)
+    |app.schema $ {}
       :defs $ {}
-        |cdn? $ quote
-          def cdn? $ cond
-              exists? js/window
-              , false
-            (exists? js/process) (= "\"true" js/process.env.cdn)
-            :else false
-        |dev? $ quote
-          def dev? $ = "\"dev" (get-env "\"mode")
-        |site $ quote
-          def site $ {} (:dev-ui "\"http://localhost:8100/main-fonts.css") (:release-ui "\"http://cdn.tiye.me/favored-fonts/main-fonts.css") (:cdn-url "\"http://cdn.tiye.me/map.clojure-china.org/") (:title "\"Clojure 中文社区地图, ClojureScript, 函数式编程") (:icon "\"http://cdn.tiye.me/logo/cljs.png") (:storage-key "\"map.clj.im")
+        |store $ quote
+          def store $ {}
+            :states $ {}
+            :content |
+      :ns $ quote (ns app.schema)
+    |app.updater $ {}
+      :defs $ {}
+        |updater $ quote
+          defn updater (store op op-data op-id op-time)
+            case-default op
+              do (println "\"Unknown op:" op) store
+              :states $ update-states store op-data
+              :content $ assoc store :content op-data
+      :ns $ quote
+        ns app.updater $ :require
+          [] respo.cursor :refer $ [] update-states
