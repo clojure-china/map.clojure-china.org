@@ -16,11 +16,11 @@
   "author": "jiyinyiyong",
   "license": "MIT",
   "devDependencies": {
-    "bottom-tip": "^0.1.5",
     "vite": "^8.0.8"
   },
   "dependencies": {
     "@calcit/procs": "^0.12.14",
+    "bottom-tip": "^0.1.5",
     "feather-icons": "^4.29.1",
     "shortid": "^2.2.16"
   }
