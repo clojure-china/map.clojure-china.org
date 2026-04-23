@@ -1,7 +1,9 @@
 
 .compact-inc.cirru
 .calcit-error.cirru
+.DS_Store
 
 js-out/
 node_modules/
 dist/
+.yarn/*.gz
