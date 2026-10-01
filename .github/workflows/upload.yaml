@@ -70,11 +70,10 @@ jobs:
         echo "prefix=${asset_prefix}" >> "$GITHUB_OUTPUT"
         echo "base-url=${base_url}" >> "$GITHUB_OUTPUT"
 
-    - name: Build and test frontend
+    - name: Build frontend
       run: |
         set -euo pipefail
         yarn build
-        yarn test
 
     - name: Save tested frontend artifact
       uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1

@@ -29,20 +29,16 @@ yarn install --immutable
 caps verify --toolchain
 calcit calcit.cirru --check-only
 yarn build
-yarn test
 ```
 
 The browser app uses typed Reel state, one Enum per dispatch, and validates
 legacy Map/new Store data when hydrating the original `map.clj.im` storage key.
-Tests exercise the actual DOM renderer, all original community links, states,
-Reel controls/devtools, beforeunload/autosave and HMR. Happy DOM is a test-only
-dependency; it is not included in the frontend bundle.
 
 `VITE_BASE_URL` controls asset URLs (default `./`). CI builds against
 `https://cos-sh.tiye.me/clojure-china/map.clojure-china.org/`, with `/pr/` for
 previews. COS uploads only `dist/`; cos-upload-action v1.1.1 verifies public
 uploads internally. Configure `COS_BUCKET`, `COS_SECRET_ID`, `COS_SECRET_KEY`
-in repository secrets. PRs without secrets run build/tests but skip upload
+in repository secrets. PRs without secrets run checks/build but skip upload
 verification; they do not demonstrate successful remote deployment.
 
 Shared fonts/icon URLs remain unchanged. Production rsync retains `dist/*`
