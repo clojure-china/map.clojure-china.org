@@ -142,3 +142,20 @@ test('actual HMR reload preserves Reel history and keeps the page mounted', () =
   app.render_app_$x_();
   assert.equal(window.document.querySelectorAll('.app a').length, 13);
 });
+
+test('repeat invokes its zero-argument callback and schedules the next tick', () => {
+  const pending = [];
+  const previous = globalThis.setTimeout;
+  let calls = 0;
+  globalThis.setTimeout = (callback, delay) => { pending.push({ callback, delay }); return pending.length; };
+  try {
+    app.repeat_$x_(2, () => { calls += 1; });
+    assert.equal(pending.length, 1);
+    assert.equal(pending[0].delay, 2000);
+    pending.shift().callback();
+    assert.equal(calls, 1, 'evaluating the function value is not invoking it');
+    assert.equal(pending.length, 1);
+  } finally {
+    globalThis.setTimeout = previous;
+  }
+});
