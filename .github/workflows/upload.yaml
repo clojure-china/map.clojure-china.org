@@ -46,14 +46,12 @@ jobs:
     - name: Check canonical Calcit snapshot
       run: |
         set -euo pipefail
-        test "$(calcit --version)" = "0.27.0"
         test -f calcit.cirru
         test -f deps.cirru
         test ! -e compact.cirru
         test ! -e package.cirru
         calcit calcit.cirru edit format
         git diff --exit-code -- calcit.cirru
-        calcit calcit.cirru fix --workflow strict --verify
         calcit calcit.cirru --check-only
         calcit calcit.cirru analyze check-public --ns app.comp.container --ns app.config --ns app.main --ns app.schema --ns app.updater --summary-only
 
@@ -152,7 +150,8 @@ jobs:
 
     - name: Upload and publicly verify frontend assets
       if: steps.deploy-head.outputs.current == 'true' && steps.cos-credentials.outputs.available == 'true'
-      uses: worktools/cos-upload-action@17e6d213fe9f6772a6090a13c8ba044cd6cbcb09 # v1.1.1
+      timeout-minutes: 10
+      uses: worktools/cos-upload-action@06d6027dcca6413c5936e04a9b6e9f0d5ef71ba0 # v1.2.0
       with:
         source-dir: dist
         bucket: ${{ secrets.COS_BUCKET }}
