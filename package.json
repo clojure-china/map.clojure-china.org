@@ -5,9 +5,10 @@
   "main": "index.js",
   "packageManager": "yarn@4.18.0",
   "scripts": {
-    "compile": "calcit calcit.cirru js",
+    "compile": "calcit",
+    "watch": "calcit -w",
     "build": "yarn compile && vite build",
-    "dev": "vite"
+    "dev": "yarn compile && vite"
   },
   "repository": {
     "type": "git",
@@ -16,7 +17,7 @@
   "author": "jiyinyiyong",
   "license": "MIT",
   "devDependencies": {
-    "vite": "^8.0.16"
+    "vite": "^8.3.1"
   },
   "dependencies": {
     "@calcit/procs": "0.27.0",
