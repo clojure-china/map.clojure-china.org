@@ -38,8 +38,9 @@ The browser app uses typed Reel state, one Enum per dispatch, and validates
 legacy Map/new Store data when hydrating the original `map.clj.im` storage key.
 
 `VITE_BASE_URL` controls asset URLs (default `./`). CI builds against
-`https://cos-sh.tiye.me/clojure-china/map.clojure-china.org/`, with `/pr/` for
-previews. COS uploads only `dist/`; cos-upload-action v1.2.0 verifies public
+`https://cos-sh.tiye.me/clojure-china/map.clojure-china.org/`, with
+`/pr/<number>/<run>/<attempt>/` for isolated previews. Upload queues are separate
+per PR; the production path is unchanged. COS uploads only `dist/`; cos-upload-action v1.2.0 verifies public
 uploads internally. Configure `COS_BUCKET`, `COS_SECRET_ID`, `COS_SECRET_KEY`
 in repository secrets. PRs without secrets run checks/build but skip upload
 verification; they do not demonstrate successful remote deployment.
