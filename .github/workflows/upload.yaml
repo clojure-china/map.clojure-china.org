@@ -57,11 +57,13 @@ jobs:
 
     - name: Select frontend CDN path
       id: asset-path
+      env:
+        PR_NUMBER: ${{ github.event.pull_request.number }}
       run: |
         set -euo pipefail
         asset_prefix="${GITHUB_REPOSITORY}/"
         if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
-          asset_prefix="${GITHUB_REPOSITORY}/pr/"
+          asset_prefix="${GITHUB_REPOSITORY}/pr/${PR_NUMBER}/${GITHUB_RUN_ID}/${GITHUB_RUN_ATTEMPT}/"
         fi
         base_url="https://cos-sh.tiye.me/${asset_prefix}"
         echo "VITE_BASE_URL=${base_url}" >> "$GITHUB_ENV"
@@ -85,7 +87,7 @@ jobs:
     needs: test
     runs-on: ubuntu-24.04
     concurrency:
-      group: cos-${{ github.repository }}-${{ github.event_name == 'pull_request' && 'pr' || 'production' }}
+      group: cos-${{ github.repository }}-${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || 'production' }}
       cancel-in-progress: false
       queue: max
     steps:
