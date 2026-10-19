@@ -52,8 +52,10 @@ jobs:
         test ! -e package.cirru
         calcit calcit.cirru edit format
         git diff --exit-code -- calcit.cirru
-        calcit calcit.cirru --check-only
-        calcit calcit.cirru analyze check-public --ns app.comp.container --ns app.config --ns app.main --ns app.schema --ns app.updater --summary-only
+        calcit calcit.cirru --check-only --all-defs
+        calcit calcit.cirru --check-only --ns app.comp.container --ns app.config --ns app.main --ns app.schema --ns app.updater --summary-only --format json
+        calcit calcit.cirru fix --workflow strict --verify --format edn
+        calcit calcit.cirru test --require-match --summary-only --format json
 
     - name: Select frontend CDN path
       id: asset-path

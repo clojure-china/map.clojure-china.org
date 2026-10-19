@@ -163,38 +163,36 @@
     'app.main $ %{} 'FileEntry
       :defs $ {}
         '*reel $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defatom *reel
-            assert-type (typed/new-reel schema/store) (:: 'reel.typed/State 'Enum 'app.schema/Store)
+          :code $ quote $ defref *reel
+            typed/State :base schema/store :store schema/store :records ([]) :pointer (Option :none) :stopped? false :display? false :merged? false
           :examples $ []
           :schema $ :: 'Ref $ :: 'reel.typed/State 'Enum 'app.schema/Store
         'dispatch! $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defn dispatch! (op)
-            when config/dev? $ println |Dispatch: op
-            reset! *reel $ match (typed/decode-control op)
-              (:some control) (typed/apply-control updater @*reel control)
-              (:none)
-                typed/record-op updater @*reel op (generate-id!) (now-ms)
+          :code $ quote $ defn dispatch! (raw-op)
+            if (enum? raw-op)
+              let
+                  op raw-op
+                when config/dev? $ println |Dispatch: op
+                reset! *reel $ match (typed/decode-control op)
+                  (:some control) (typed/apply-control updater @*reel control)
+                  (:none)
+                    typed/record-op updater @*reel op (generate-id!) (now-ms)
+              raise |Dispatch-expected-an-Enum
+            , &unit
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ [] 'Enum
+            :args $ [] 'Dynamic
             :features $ #{} :js-ffi
         'main! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn main! ()
             println "|Running mode:" $ if config/dev? |dev |release
             render-app!
-            add-watch *reel :changes $ fn (r p)
+            add-watch! *reel :changes $ fn (r p)
               hint-fn $ {}
                 :args $ [] (:: 'reel.typed/State 'Enum 'app.schema/Store) (:: 'reel.typed/State 'Enum 'app.schema/Store)
                 :return 'Unit
               render-app!
             listen-devtools! |a dispatch!
-            js/window.addEventListener |beforeunload $ fn (event)
-              hint-fn $ {}
-                :args $ [] 'Dynamic
-                :return 'Unit
-                :features $ #{} :js-ffi
-              persist-storage!
-            browser/set-interval! persist-storage! 60
             match
               browser/storage-get $
                 get config/site :storage-key
@@ -202,6 +200,8 @@
               (:some raw)
                 dispatch! $ :: :hydrate-storage $ parse-cirru-edn raw
               (:none) &unit
+            browser/add-event-listener! |beforeunload $ fn (event) (persist-storage!)
+            browser/set-interval! persist-storage! 60000
             println "|App started."
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
@@ -209,9 +209,9 @@
             :features $ #{} :js-ffi
         'mount-target $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def mount-target
-            (browser/query-selector |.app) .unwrap
+            option:unwrap $ dom/query-selector |.app
           :examples $ []
-          :schema $ :: 'js-ffi.browser/DomElementHost
+          :schema $ :: 'respo.dom/DomElement
         'persist-storage! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn persist-storage! ()
             browser/storage-set!
@@ -225,8 +225,8 @@
         'reload! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn reload! ()
             if (js-nullish? build-errors)
-              do (remove-watch *reel :changes) (clear-cache!)
-                add-watch *reel :changes $ fn (reel prev)
+              do (remove-watch! *reel :changes) (clear-cache!)
+                add-watch! *reel :changes $ fn (reel prev)
                   hint-fn $ {}
                     :args $ [] (:: 'reel.typed/State 'Enum 'app.schema/Store) (:: 'reel.typed/State 'Enum 'app.schema/Store)
                     :return 'Unit
@@ -241,31 +241,9 @@
             :features $ #{} :js-ffi
         'render-app! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn render-app! ()
-            render! mount-target (comp-container @*reel) dispatch!
-          :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ []
-            :features $ #{} :js-ffi
-        'repeat! $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defn repeat! (duration cb)
-            js/setTimeout
-              fn ()
-                hint-fn $ {}
-                  :args $ []
-                  :return 'Unit
-                  :features $ #{} :js-ffi
-                cb
-                repeat! (* 1000 duration) cb
-              * 1000 duration
-            , &unit
-          :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ [] 'Number $ :: 'Fn
-              {} (:return 'Unit)
-                :args $ []
-            :features $ #{} :js-ffi
-        'snippets $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defn snippets () (println config/cdn?)
+            render-with! mount-target
+              fn () $ comp-container @*reel
+              , dispatch!
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'Unit)
             :args $ []
@@ -273,7 +251,7 @@
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.main
           :require
-            respo.core :refer $ render! clear-cache!
+            respo.core :refer $ render-with! clear-cache!
             app.comp.container :refer $ comp-container
             app.updater :refer $ updater
             app.schema :as schema
@@ -284,6 +262,7 @@
             app.config :as config
             |./calcit.build-errors.mjs :default build-errors
             |bottom-tip :default hud!
+            respo.ffi.browser :as dom
     'app.schema $ %{} 'FileEntry
       :defs $ {}
         'StatesInput $ %{} 'CodeEntry (:doc |)
@@ -298,16 +277,29 @@
             :content 'String
           :examples $ []
           :schema $ :: 'StructDef
-        'decode-store $ %{} 'CodeEntry (:doc |)
+        'decode-store $ %{} 'CodeEntry
+          :doc "|Restore legacy Maps or parsed Struct archives by validating named fields into the current Store constructor. The single struct-to-map conversion is an actual archive boundary, not a type assertion; unrelated legacy keys remain ignored."
           :code $ quote $ defn decode-store (raw)
-            decode-map-as
-              {}
-                :states $ option:unwrap $ get raw :states
-                :content $ option:unwrap $ get raw :content
-              , Store
+            let
+                fields $ if (map? raw) raw $ if (struct? raw) (&struct:to-map raw) (raise |Saved-store-must-be-a-Map-or-Struct)
+              decode-map-as
+                {}
+                  :states $ option:unwrap $ get fields :states
+                  :content $ option:unwrap $ get fields :content
+                , Store
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'app.schema/Store)
             :args $ [] 'Dynamic
+          :tests $ [] $ %{} 'TestEntry (:name |legacy-map-and-struct-archive)
+            :code $ quote $ let
+                decoded $ decode-store $ {}
+                  :states $ {}
+                  :content "|历史存档 🐈"
+                  :unused |legacy-extra
+                restored $ decode-store $ parse-cirru-edn (format-cirru-edn decoded)
+              assert= "|历史存档 🐈" $ :content decoded
+              assert= "|历史存档 🐈" $ :content restored
+              assert= ({}) (:states restored)
         'store $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def store
             Store :states ({}) :content |
@@ -325,9 +317,9 @@
                     input $ decode-map-as
                       {} (:cursor cursor) (:data data)
                       , app.schema/StatesInput
-                  struct-with store $ :states $ assoc-in (:states store)
-                    concat (:cursor input) ([] :data)
-                    :data input
+                  struct-with store $ :states $ decode-map-as
+                    update-state-tree (:states store) (:cursor input) (:data input)
+                    :: 'Map 'Tag 'Dynamic
               (:content content)
                 struct-with store $ :content $ expect-string |content content
               (:hydrate-storage data) (decode-store data)
@@ -336,8 +328,18 @@
           :schema $ :: 'Fn $ {} (:return 'app.schema/Store)
             :args $ [] 'app.schema/Store 'Enum 'String 'Number
             :features $ #{} :js-ffi
+          :tests $ [] $ %{} 'TestEntry (:name |cursor-preserves-content)
+            :code $ quote $ let
+                base $ app.schema/Store :states ({}) :content |keep
+                next $ updater base
+                  :: :states ([] :editor) |draft
+                  , |test 0
+              assert= |keep $ :content next
+              assert= |draft $ option:unwrap $ get-in (:states next) ([] :editor :data)
+              assert= ({}) (:states base)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.updater
           :require
             app.schema :refer $ Store StatesInput decode-store
             js-ffi.contract :refer $ expect-string
+            respo.cursor :refer $ update-state-tree
