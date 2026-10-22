@@ -12,15 +12,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@calcit/procs@npm:0.30.1-alpha.5":
-  version: 0.30.1-alpha.5
-  resolution: "@calcit/procs@npm:0.30.1-alpha.5"
+"@calcit/procs@npm:0.30.1":
+  version: 0.30.1
+  resolution: "@calcit/procs@npm:0.30.1"
   dependencies:
     "@calcit/finger-vec": "npm:0.1.1"
     "@calcit/ternary-tree": "npm:0.0.26"
     "@cirru/parser.ts": "npm:0.0.10"
     "@cirru/writer.ts": "npm:^0.1.9"
-  checksum: 10c0/925226e14b05ab6f1ed5adf32611a3575324d9e99474e84dce6f01093dce4d869d301585bb76c06d56725a716a76536888f99b9da5c961e79c9b0c62a5b27b1c
+  checksum: 10c0/a0f00e3c0c9b3a5a2aea8b97e09f2692aa25039a48a2f7ccb345801fdbc546cbf3bb34ee268a58526baba9fb697781bb7929a5d1f6622816c9422c6c3ba8537b
   languageName: node
   linkType: hard
 
@@ -288,20 +288,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"classnames@npm:^2.2.5":
-  version: 2.5.1
-  resolution: "classnames@npm:2.5.1"
-  checksum: 10c0/afff4f77e62cea2d79c39962980bf316bacb0d7c49e13a21adaadb9221e1c6b9d3cdb829d8bb1b23c406f4e740507f37e1dcf506f7e3b7113d17c5bab787aa69
-  languageName: node
-  linkType: hard
-
-"core-js@npm:^3.1.3":
-  version: 3.36.1
-  resolution: "core-js@npm:3.36.1"
-  checksum: 10c0/4f0ad2464535d809ba659226feca15bff14b9b5452518bddff8d81b9c94b0227b3027d9838f22f1dce664958acb4107b935cc0037695ae545edc2a303bca98bf
-  languageName: node
-  linkType: hard
-
 "debug@npm:4, debug@npm:^4.3.4":
   version: 4.4.3
   resolution: "debug@npm:4.4.3"
@@ -371,16 +357,6 @@ __metadata:
     picomatch:
       optional: true
   checksum: 10c0/e345083c4306b3aed6cb8ec551e26c36bab5c511e99ea4576a16750ddc8d3240e63826cc624f5ae17ad4dc82e68a253213b60d556c11bfad064b7607847ed07f
-  languageName: node
-  linkType: hard
-
-"feather-icons@npm:^4.29.1":
-  version: 4.29.1
-  resolution: "feather-icons@npm:4.29.1"
-  dependencies:
-    classnames: "npm:^2.2.5"
-    core-js: "npm:^3.1.3"
-  checksum: 10c0/16d58ca3461ca5d159a41b2ecaf7449a20e03fd000dec6c53d644af8b95667df4b2904b8fa4c8fbd1870979342be2fde7373a7e62a5f9bdf7b7f59bec186f56f
   languageName: node
   linkType: hard
 
@@ -752,13 +728,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nanoid@npm:^2.1.0":
-  version: 2.1.11
-  resolution: "nanoid@npm:2.1.11"
-  checksum: 10c0/8640d17698633ff78b2549ec8d5dffd8f56909bad1cf0da08bf3a4012f98553b1b9f2327a2d7fb3613084f33189a8ab4b889eb4c7939f3f9e242d9fd8ff059d5
-  languageName: node
-  linkType: hard
-
 "nanoid@npm:^3.3.20":
   version: 3.3.20
   resolution: "nanoid@npm:3.3.20"
@@ -959,23 +928,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"shortid@npm:^2.2.16":
-  version: 2.2.16
-  resolution: "shortid@npm:2.2.16"
-  dependencies:
-    nanoid: "npm:^2.1.0"
-  checksum: 10c0/7f389eb96cc11b569ac02655b861290a194f3a5402b3e3c86d21b9d016ac964683bdd6aac03b61fb6ddc5a727641442f56b70266742cf0911eee3bdc61be99eb
-  languageName: node
-  linkType: hard
-
 "sitemap@workspace:.":
   version: 0.0.0-use.local
   resolution: "sitemap@workspace:."
   dependencies:
-    "@calcit/procs": "npm:0.30.1-alpha.5"
+    "@calcit/procs": "npm:0.30.1"
     bottom-tip: "npm:^0.1.5"
-    feather-icons: "npm:^4.29.1"
-    shortid: "npm:^2.2.16"
     vite: "npm:^8.3.3"
   languageName: unknown
   linkType: soft
