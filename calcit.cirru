@@ -88,9 +88,9 @@
           :schema $ :: 'Map 'Tag 'String
         'style-category $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def style-category
-            {} (:font-size |32px) (:font-weight |bold) (:line-height 4)
+            {} (:font-size |32px) (:font-weight |bold) (:line-height |4)
           :examples $ []
-          :schema $ :: 'Map 'Tag 'Dynamic
+          :schema $ :: 'Map 'Tag 'String
         'style-container $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def style-container
             {} $ :font-family "|Helvetica Neue, PingFang SC, Microsoft Yahei, 微软雅黑, STXihei, 华文细黑, sans-serif"
@@ -109,15 +109,15 @@
           :schema $ :: 'Map 'Tag 'String
         'style-hint $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def style-hint
-            {} (:text-align |center) (:font-size |12px) (:line-height 3)
+            {} (:text-align |center) (:font-size |12px) (:line-height |3)
               :background-color $ hsl 120 40 92
           :examples $ []
-          :schema $ :: 'Map 'Tag 'Dynamic
+          :schema $ :: 'Map 'Tag 'String
         'style-link $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def style-link
-            {} (:line-height 2.4) (:font-size |18px) (:text-decoration |none) (:display |block)
+            {} (:line-height |2.4) (:font-size |18px) (:text-decoration |none) (:display |block)
           :examples $ []
-          :schema $ :: 'Map 'Tag 'Dynamic
+          :schema $ :: 'Map 'Tag 'String
         'style-resources $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def style-resources
             {} $ :padding-left |40px
@@ -209,7 +209,7 @@
             :features $ #{} :js-ffi
         'mount-target $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def mount-target
-            option:unwrap $ dom/query-selector |.app
+            .unwrap $ dom/query-selector |.app
           :examples $ []
           :schema $ :: 'respo.dom/DomElement
         'persist-storage! $ %{} 'CodeEntry (:doc |)
@@ -284,8 +284,8 @@
                 fields $ if (map? raw) raw $ if (struct? raw) (&struct:to-map raw) (raise |Saved-store-must-be-a-Map-or-Struct)
               decode-map-as
                 {}
-                  :states $ option:unwrap $ get fields :states
-                  :content $ option:unwrap $ get fields :content
+                  :states $ .unwrap $ get fields :states
+                  :content $ .unwrap $ get fields :content
                 , Store
           :examples $ []
           :schema $ :: 'Fn $ {} (:return 'app.schema/Store)
@@ -335,7 +335,7 @@
                   :: :states ([] :editor) |draft
                   , |test 0
               assert= |keep $ :content next
-              assert= |draft $ option:unwrap $ get-in (:states next) ([] :editor :data)
+              assert= |draft $ .unwrap $ get-in (:states next) ([] :editor :data)
               assert= ({}) (:states base)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.updater

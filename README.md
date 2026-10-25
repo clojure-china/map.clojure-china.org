@@ -20,8 +20,9 @@ https://github.com/calcit-lang/respo-calcit-workflow
 
 ### Development and deployment
 
-开发与 CI 使用配对正式 Calcit/procs 0.30.1，以及精确正式 Reel 0.6.41、Respo 0.16.124、
-js-ffi 0.2.5；升级后需重新安装模块。站点链接、存储键与部署路径不变。
+开发与 CI 使用配对正式 Calcit/procs 0.30.1，以及精确正式 Reel 0.6.42、Respo 0.16.126、
+js-ffi 0.2.6；升级后需重新安装模块并构建、刷新，避免混用旧生成代码。
+站点链接、存储键、存档格式与部署路径不变，npm 依赖和 lock 不变。
 自动保存从误用的 60 毫秒修正为 60 秒；存档恢复成功后才安装定时器与卸载保存监听。
 损坏存档仍明确报告错误，但不会被后续自动保存覆盖；页面静态链接仍可用。
 Use Node.js 24 and Yarn 4.18.0. The canonical source files are
@@ -48,6 +49,14 @@ legacy Map/new Store data when hydrating the original `map.clj.im` storage key.
 旧 Struct 存档仅在读取边界转换为字段 Map，再验证构造成当前 Store；
 保留一处实际 `&struct:to-map` 转换，不以类型断言或 Dynamic 擦除伪造身份。
 移除无引用的模板 `repeat!` / `snippets`，不引入新的定时器框架。
+
+三处源码及一处原测试的 Option helper 改为接收者 `.unwrap`，仍在缺失时失败；
+没有改为吞错、nil 或默认值。原两项测试的业务断言不变。
+三份静态样式的行高改为无单位 String（4、3、2.4），对应 schema 从
+`Map<Tag,Dynamic>` 收紧为 `Map<Tag,String>`。实际 Respo DOM 实现原本就将这些
+数值行高输出为同样的无单位字符串，因此不改变行高，也不新增运行期转换或强断言。
+`hud!`、恢复成功后才启用保存的顺序、60 秒间隔和卸载保存均保持。
+这些真实源头类型可以直接收紧，不需要增加编译器 fix/proof 规则或迁移脚本。
 
 本轮本地未运行 Caps；开发者仍须执行上述安装步骤以生成模块链接，CI 独立 strict 解析。
 两项定义附着业务测试覆盖旧 Map/Struct 存档往返、局部状态更新及 content 保留，
