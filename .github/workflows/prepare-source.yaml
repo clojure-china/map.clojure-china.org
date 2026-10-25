@@ -67,8 +67,8 @@ jobs:
       - name: Isolated upstream style serialization observation
         run: |
           set -euo pipefail
-          calcit eval --dep calcit.cirru 'println $ respo.render.dom/style->string $ [] ([] :line-height 4)' | tee acceptance/css-string-observation.txt
-          calcit eval --dep calcit.cirru 'println $ respo.util.format/get-style-value 4 |lineHeight' | tee acceptance/css-inline-observation.txt
+          calcit eval --dep "$GITHUB_WORKSPACE/calcit.cirru" 'println $ respo.render.dom/style->string $ [] ([] :line-height 4)' | tee acceptance/css-string-observation.txt
+          calcit eval --dep "$GITHUB_WORKSPACE/calcit.cirru" 'println $ respo.util.format/get-style-value 4 |lineHeight' | tee acceptance/css-inline-observation.txt
       - uses: actions/upload-artifact@v7.0.2
         if: always()
         with:
