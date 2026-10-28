@@ -6,7 +6,7 @@
     {} (:description "|Clojure China community map browser application") (:init-fn 'app.main/main!) (:mode :js) (:reload-fn 'app.main/reload!) (:target :browser)
       :feature-policy $ {}
       :modules $ [] |respo.calcit/ |reel.calcit/
-      :type-slots $ {}
+      :type-slots $ {} $ :dispatch-op |app.schema/DispatchOp
   :files $ {}
     'app.comp.container $ %{} 'FileEntry
       :defs $ {}
@@ -265,6 +265,10 @@
             respo.ffi.browser :as dom
     'app.schema $ %{} 'FileEntry
       :defs $ {}
+        'DispatchOp $ %{} 'CodeEntry (:doc "|Respo 入口事件合同，容纳应用和 Reel 控制事件；代表值不发送。")
+          :code $ quote $ def DispatchOp (:: :unhandled)
+          :examples $ []
+          :schema $ :: 'Enum
         'StatesInput $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defstruct StatesInput
             :cursor $ :: 'List 'Tag
@@ -335,7 +339,11 @@
                   :: :states ([] :editor) |draft
                   , |test 0
               assert= |keep $ :content next
-              assert= |draft $ .unwrap $ get-in (:states next) ([] :editor :data)
+              assert= |draft $ match
+                get-in (:states next) ([] :editor :data)
+                (:ok value) value
+                (:err error)
+                  raise $ str "|Expected editor data: " error
               assert= ({}) (:states base)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.updater

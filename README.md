@@ -20,10 +20,11 @@ https://github.com/calcit-lang/respo-calcit-workflow
 
 ### Development and deployment
 
-开发与 CI 使用配对正式 Calcit/procs 0.30.1，以及精确正式 Reel 0.6.42、Respo 0.16.126、
-js-ffi 0.2.6；升级后需重新安装模块并构建、刷新，避免混用旧生成代码。
-站点链接、存储键、存档格式与部署路径不变，npm 依赖和 lock 不变。
-自动保存从误用的 60 毫秒修正为 60 秒；存档恢复成功后才安装定时器与卸载保存监听。
+开发与 CI 使用配对正式 Calcit/procs 0.31.0，以及已发布 Reel 0.7.0-alpha.4、Respo 0.17.0-alpha.4、
+js-ffi 0.2.7；模块图仍含 alpha，可能有样式差异；升级后需重新安装模块并构建、刷新，避免混用旧生成代码。
+站点链接、存储键、存档格式与部署路径不变，仅同步 procs 锁版本。
+本次补齐默认入口 DispatchOp Enum 绑定，原 Enum 守卫与业务/Reel 分派保持；不增加强转或放宽门禁。
+此前已将自动保存从误用的 60 毫秒修正为 60 秒；存档恢复成功后才安装定时器与卸载保存监听。
 损坏存档仍明确报告错误，但不会被后续自动保存覆盖；页面静态链接仍可用。
 Use Node.js 24 and Yarn 4.18.0. The canonical source files are
 `calcit.cirru` and `deps.cirru`; do not recreate `compact.cirru` or `package.cirru`.
@@ -50,7 +51,7 @@ legacy Map/new Store data when hydrating the original `map.clj.im` storage key.
 保留一处实际 `&struct:to-map` 转换，不以类型断言或 Dynamic 擦除伪造身份。
 移除无引用的模板 `repeat!` / `snippets`，不引入新的定时器框架。
 
-三处源码及一处原测试的 Option helper 改为接收者 `.unwrap`，仍在缺失时失败；
+此前三处源码的 Option helper 已改为接收者 `.unwrap`；本轮原测试中的 `get-in` 已返回 Result，改用 `:ok/:err` 分支，仍在缺失时失败；
 没有改为吞错、nil 或默认值。原两项测试的业务断言不变。
 三份静态样式的行高改为无单位 String（4、3、2.4），对应 schema 从
 `Map<Tag,Dynamic>` 收紧为 `Map<Tag,String>`。实际 Respo DOM 实现原本就将这些
