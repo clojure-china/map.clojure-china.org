@@ -14,8 +14,7 @@
           :code $ quote $ defn address (a-text a-link)
             a $ {} (:style style-link) (:href a-link) (:inner-text a-text) (:target |_blank)
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'respo.schema/Element)
-            :args $ [] 'String 'String
+          :schema $ quote $ Fn String String (-> respo.schema/Element)
         'comp-container $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defcomp comp-container (reel)
             let
@@ -77,25 +76,24 @@
                       address "|知乎 Clojure 标签" |https://www.zhihu.com/topic/19597039/hot
                   div $ {} $ :style style-section
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'respo.schema/Component)
-            :args $ [] $ :: 'reel.typed/State 'Enum 'app.schema/Store
+          :schema $ quote $ Fn (reel.typed/State Enum app.schema/Store) (-> respo.schema/Component)
         'style-a $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def style-a
             {}
               :color $ hsl 200 40 70
               :text-decoration |none
           :examples $ []
-          :schema $ :: 'Map 'Tag 'String
+          :schema $ quote $ Map Tag String
         'style-category $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def style-category
             {} (:font-size |32px) (:font-weight |bold) (:line-height |4)
           :examples $ []
-          :schema $ :: 'Map 'Tag 'String
+          :schema $ quote $ Map Tag String
         'style-container $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def style-container
             {} $ :font-family "|Helvetica Neue, PingFang SC, Microsoft Yahei, 微软雅黑, STXihei, 华文细黑, sans-serif"
           :examples $ []
-          :schema $ :: 'Map 'Tag 'String
+          :schema $ quote $ Map Tag String
         'style-header $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def style-header
             {}
@@ -106,28 +104,28 @@
               :line-height |160px
               :height |160px
           :examples $ []
-          :schema $ :: 'Map 'Tag 'String
+          :schema $ quote $ Map Tag String
         'style-hint $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def style-hint
             {} (:text-align |center) (:font-size |12px) (:line-height |3)
               :background-color $ hsl 120 40 92
           :examples $ []
-          :schema $ :: 'Map 'Tag 'String
+          :schema $ quote $ Map Tag String
         'style-link $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def style-link
             {} (:line-height |2.4) (:font-size |18px) (:text-decoration |none) (:display |block)
           :examples $ []
-          :schema $ :: 'Map 'Tag 'String
+          :schema $ quote $ Map Tag String
         'style-resources $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def style-resources
             {} $ :padding-left |40px
           :examples $ []
-          :schema $ :: 'Map 'Tag 'String
+          :schema $ quote $ Map Tag String
         'style-section $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def style-section
             {} (:margin |auto) (:padding |40px) (:max-width |400px)
           :examples $ []
-          :schema $ :: 'Map 'Tag 'String
+          :schema $ quote $ Map Tag String
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.comp.container
           :require
@@ -141,14 +139,14 @@
               get-env |cdn
               , .unwrap-or |false
           :examples $ []
-          :schema $ :: 'Bool
+          :schema $ quote Bool
         'dev? $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def dev?
             = |dev $
               get-env |mode
               , .unwrap-or |release
           :examples $ []
-          :schema $ :: 'Bool
+          :schema $ quote Bool
         'site $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def site
             {} (:dev-ui |http://localhost:8100/main-fonts.css) (:release-ui |http://cdn.tiye.me/favored-fonts/main-fonts.css)
@@ -157,7 +155,7 @@
               :icon |http://cdn.tiye.me/logo/cljs.png
               :storage-key |map.clj.im
           :examples $ []
-          :schema $ :: 'Map 'Tag 'String
+          :schema $ quote $ Map Tag String
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.config
     'app.main $ %{} 'FileEntry
@@ -166,7 +164,7 @@
           :code $ quote $ defref *reel
             typed/State :base schema/store :store schema/store :records ([]) :pointer (Option :none) :stopped? false :display? false :merged? false
           :examples $ []
-          :schema $ :: 'Ref $ :: 'reel.typed/State 'Enum 'app.schema/Store
+          :schema $ quote $ Ref (reel.typed/State Enum app.schema/Store)
         'dispatch! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn dispatch! (raw-op)
             if (enum? raw-op)
@@ -180,17 +178,13 @@
               raise |Dispatch-expected-an-Enum
             , &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ [] 'Dynamic
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn Dynamic (-> Unit) (:features :js-ffi)
         'main! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn main! ()
             println "|Running mode:" $ if config/dev? |dev |release
             render-app!
             add-watch! *reel :changes $ fn (r p)
-              hint-fn $ {}
-                :args $ [] (:: 'reel.typed/State 'Enum 'app.schema/Store) (:: 'reel.typed/State 'Enum 'app.schema/Store)
-                :return 'Unit
+              hint-fn $ Fn (reel.typed/State Enum app.schema/Store) (reel.typed/State Enum app.schema/Store) (-> Unit)
               render-app!
             listen-devtools! |a dispatch!
             match
@@ -204,14 +198,12 @@
             browser/set-interval! persist-storage! 60000
             println "|App started."
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
         'mount-target $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def mount-target
             .unwrap $ dom/query-selector |.app
           :examples $ []
-          :schema $ :: 'respo.dom/DomElement
+          :schema $ quote respo.dom/DomElement
         'persist-storage! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn persist-storage! ()
             browser/storage-set!
@@ -219,35 +211,27 @@
                 , .unwrap
               format-cirru-edn $ :store @*reel
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
         'reload! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn reload! ()
             if (js-nullish? build-errors)
               do (remove-watch! *reel :changes) (clear-cache!)
                 add-watch! *reel :changes $ fn (reel prev)
-                  hint-fn $ {}
-                    :args $ [] (:: 'reel.typed/State 'Enum 'app.schema/Store) (:: 'reel.typed/State 'Enum 'app.schema/Store)
-                    :return 'Unit
+                  hint-fn $ Fn (reel.typed/State Enum app.schema/Store) (reel.typed/State Enum app.schema/Store) (-> Unit)
                   render-app!
                 reset! *reel $ typed/refresh updater @*reel schema/store
                 hud! |ok~ |Ok
               hud! |error build-errors
             , &unit
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
         'render-app! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn render-app! ()
             render-with! mount-target
               fn () $ comp-container @*reel
               , dispatch!
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'Unit)
-            :args $ []
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.main
           :require
@@ -268,19 +252,19 @@
         'DispatchOp $ %{} 'CodeEntry (:doc "|Respo 入口事件合同，容纳应用和 Reel 控制事件；代表值不发送。")
           :code $ quote $ def DispatchOp (:: :unhandled)
           :examples $ []
-          :schema $ :: 'Enum
+          :schema $ quote Enum
         'StatesInput $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defstruct StatesInput
-            :cursor $ :: 'List 'Tag
+            :cursor $ quote $ List Tag
             :data 'Dynamic
           :examples $ []
-          :schema $ :: 'StructDef
+          :schema $ quote StructDef
         'Store $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defstruct Store
-            :states $ :: 'Map 'Tag 'Dynamic
+            :states $ quote $ Map Tag Dynamic
             :content 'String
           :examples $ []
-          :schema $ :: 'StructDef
+          :schema $ quote StructDef
         'decode-store $ %{} 'CodeEntry
           :doc "|Restore legacy Maps or parsed Struct archives by validating named fields into the current Store constructor. The single struct-to-map conversion is an actual archive boundary, not a type assertion; unrelated legacy keys remain ignored."
           :code $ quote $ defn decode-store (raw)
@@ -292,8 +276,7 @@
                   :content $ .unwrap $ get fields :content
                 , Store
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'app.schema/Store)
-            :args $ [] 'Dynamic
+          :schema $ quote $ Fn Dynamic (-> app.schema/Store)
           :tests $ [] $ %{} 'TestEntry (:name |legacy-map-and-struct-archive)
             :code $ quote $ let
                 decoded $ decode-store $ {}
@@ -308,7 +291,7 @@
           :code $ quote $ def store
             Store :states ({}) :content |
           :examples $ []
-          :schema $ :: 'app.schema/Store
+          :schema $ quote app.schema/Store
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.schema
     'app.updater $ %{} 'FileEntry
@@ -329,9 +312,7 @@
               (:hydrate-storage data) (decode-store data)
               _ $ do (eprintln "|Unknown op:" op) store
           :examples $ []
-          :schema $ :: 'Fn $ {} (:return 'app.schema/Store)
-            :args $ [] 'app.schema/Store 'Enum 'String 'Number
-            :features $ #{} :js-ffi
+          :schema $ quote $ Fn app.schema/Store Enum String Number (-> app.schema/Store) (:features :js-ffi)
           :tests $ [] $ %{} 'TestEntry (:name |cursor-preserves-content)
             :code $ quote $ let
                 base $ app.schema/Store :states ({}) :content |keep

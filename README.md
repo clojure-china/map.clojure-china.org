@@ -18,6 +18,21 @@ Fork and edit Clojure code, and send PR!
 
 https://github.com/calcit-lang/respo-calcit-workflow
 
+### Calcit 0.32.0 迁移候选：使用者影响
+
+CLI/procs 配对正式 0.32.0，需重新安装完整图、生成 JS 并刷新。
+Reel/Respo 暂为本地候选，已发布标签整图待验收；站点链接、存档 key/格式、
+恢复成功后启用保存的顺序、60 秒间隔和真实 HUD 不变。
+
+官方转换四处类型写法，26 个定义 schema 保持，原类型门禁及两项业务测试保留。
+Actions 改为已核对原 SHA 的精确正式 tag；一小时依赖隔离、COS 内置 verify、
+原前端路径和阻止旧提交部署的条件保持，不新增验证脚本或放宽预算。
+本地全部 161 个定义、公开命名空间 26 个定义、完整 strict（diagnostics 为空）、
+原两项存档/状态测试、构建和 immutable 安装通过。实际四类导航、12 个社区链接
+及源码链接目标、刷新验收通过，warn/error 为空；独立只读评审无待处理问题。
+未访问外部站点或真实存档，坏存档保护、60 秒定时器和 HMR 未在本轮重验。
+正式依赖整图和 PR/Linux CI 尚待验证。下方 0.31 说明为历史记录。
+
 ### Development and deployment
 
 开发与 CI 使用配对正式 Calcit/procs 0.31.0，以及已发布 Reel 0.7.0-alpha.4、Respo 0.17.0-alpha.4、
