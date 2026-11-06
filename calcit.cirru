@@ -76,7 +76,7 @@
                       address "|知乎 Clojure 标签" |https://www.zhihu.com/topic/19597039/hot
                   div $ {} $ :style style-section
           :examples $ []
-          :schema $ quote $ Fn (reel.typed/State Enum app.schema/Store) (-> respo.schema/Component)
+          :schema $ quote $ Fn (reel.typed/State app.schema/Op app.schema/Store) (-> respo.schema/Component)
         'style-a $ %{} 'CodeEntry (:doc |)
           :code $ quote $ def style-a
             {}
@@ -164,27 +164,38 @@
           :code $ quote $ defref *reel
             typed/State :base schema/store :store schema/store :records ([]) :pointer (Option :none) :stopped? false :display? false :merged? false
           :examples $ []
-          :schema $ quote $ Ref (reel.typed/State Enum app.schema/Store)
+          :schema $ quote $ Ref (reel.typed/State app.schema/Op app.schema/Store)
         'dispatch! $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defn dispatch! (raw-op)
-            if (enum? raw-op)
-              let
-                  op raw-op
-                when config/dev? $ println |Dispatch: op
-                reset! *reel $ match (typed/decode-control op)
-                  (:some control) (typed/apply-control updater @*reel control)
-                  (:none)
-                    typed/record-op updater @*reel op (generate-id!) (now-ms)
-              raise |Dispatch-expected-an-Enum
+          :code $ quote $ defn dispatch! (op)
+            when config/dev? $ println |Dispatch: op
+            match (typed/decode-control op)
+              (:some control)
+                reset! *reel $ typed/apply-control updater @*reel control
+              (:none)
+                let
+                    action $ match op
+                      (:states cursor data)
+                        Option :some $ schema/Op :states
+                          decode-map-as cursor $ List Tag
+                          , data
+                      (:content content)
+                        Option :some $ schema/Op :content $ js-ffi.contract/expect-string |content content
+                      (:hydrate-storage data)
+                        Option :some $ schema/Op :hydrate-storage $ schema/decode-store data
+                      _ $ do (eprintln "|Unknown op:" op) (Option :none)
+                  match action
+                    (:some value)
+                      reset! *reel $ typed/record-op updater @*reel value (generate-id!) (now-ms)
+                    (:none) &unit
             , &unit
           :examples $ []
-          :schema $ quote $ Fn Dynamic (-> Unit) (:features :js-ffi)
+          :schema $ quote $ Fn AnyEnum (-> Unit) (:features :js-ffi)
         'main! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn main! ()
             println "|Running mode:" $ if config/dev? |dev |release
             render-app!
             add-watch! *reel :changes $ fn (r p)
-              hint-fn $ Fn (reel.typed/State Enum app.schema/Store) (reel.typed/State Enum app.schema/Store) (-> Unit)
+              hint-fn $ Fn (reel.typed/State app.schema/Op app.schema/Store) (reel.typed/State app.schema/Op app.schema/Store) (-> Unit)
               render-app!
             listen-devtools! |a dispatch!
             match
@@ -217,7 +228,7 @@
             if (js-nullish? build-errors)
               do (remove-watch! *reel :changes) (clear-cache!)
                 add-watch! *reel :changes $ fn (reel prev)
-                  hint-fn $ Fn (reel.typed/State Enum app.schema/Store) (reel.typed/State Enum app.schema/Store) (-> Unit)
+                  hint-fn $ Fn (reel.typed/State app.schema/Op app.schema/Store) (reel.typed/State app.schema/Op app.schema/Store) (-> Unit)
                   render-app!
                 reset! *reel $ typed/refresh updater @*reel schema/store
                 hud! |ok~ |Ok
@@ -252,17 +263,18 @@
         'DispatchOp $ %{} 'CodeEntry (:doc "|Respo 入口事件合同，容纳应用和 Reel 控制事件；代表值不发送。")
           :code $ quote $ def DispatchOp (:: :unhandled)
           :examples $ []
-          :schema $ quote Enum
-        'StatesInput $ %{} 'CodeEntry (:doc |)
-          :code $ quote $ defstruct StatesInput
-            :cursor $ quote $ List Tag
-            :data 'Dynamic
+          :schema $ quote AnyEnum
+        'Op $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defenum Op
+            :states (List Tag) Dynamic
+            :content String
+            :hydrate-storage app.schema/Store
           :examples $ []
-          :schema $ quote StructDef
+          :schema $ quote EnumDef
         'Store $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defstruct Store
-            :states $ quote $ Map Tag Dynamic
-            :content 'String
+            :states $ Map Tag Dynamic
+            :content String
           :examples $ []
           :schema $ quote StructDef
         'decode-store $ %{} 'CodeEntry
@@ -300,24 +312,19 @@
           :code $ quote $ defn updater (store op op-id op-time)
             match op
               (:states cursor data)
-                let
-                    input $ decode-map-as
-                      {} (:cursor cursor) (:data data)
-                      , app.schema/StatesInput
-                  struct-with store $ :states $ decode-map-as
-                    update-state-tree (:states store) (:cursor input) (:data input)
-                    :: 'Map 'Tag 'Dynamic
+                struct-with store $ :states $ decode-map-as
+                  update-state-tree (:states store) cursor data
+                  Map Tag Dynamic
               (:content content)
-                struct-with store $ :content $ expect-string |content content
-              (:hydrate-storage data) (decode-store data)
-              _ $ do (eprintln "|Unknown op:" op) store
+                struct-with store $ :content content
+              (:hydrate-storage data) data
           :examples $ []
-          :schema $ quote $ Fn app.schema/Store Enum String Number (-> app.schema/Store) (:features :js-ffi)
+          :schema $ quote $ Fn app.schema/Store app.schema/Op String Number (-> app.schema/Store) (:features :js-ffi)
           :tests $ [] $ %{} 'TestEntry (:name |cursor-preserves-content)
             :code $ quote $ let
                 base $ app.schema/Store :states ({}) :content |keep
                 next $ updater base
-                  :: :states ([] :editor) |draft
+                  app.schema/Op :states ([] :editor) |draft
                   , |test 0
               assert= |keep $ :content next
               assert= |draft $ match
@@ -328,7 +335,4 @@
               assert= ({}) (:states base)
       :ns $ %{} 'NsEntry (:doc |)
         :code $ quote $ ns app.updater
-          :require
-            app.schema :refer $ Store StatesInput decode-store
-            js-ffi.contract :refer $ expect-string
-            respo.cursor :refer $ update-state-tree
+          :require $ respo.cursor :refer $ update-state-tree
