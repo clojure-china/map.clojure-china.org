@@ -6,7 +6,7 @@
     {} (:description "|Clojure China community map browser application") (:init-fn 'app.main/main!) (:mode :js) (:reload-fn 'app.main/reload!) (:target :browser)
       :feature-policy $ {}
       :modules $ [] |respo.calcit/ |reel.calcit/
-      :type-slots $ {} $ :dispatch-op |app.schema/DispatchOp
+      :type-slots $ {} $ :dispatch-op 'app.schema/Op
   :files $ {}
     'app.comp.container $ %{} 'FileEntry
       :defs $ {}
@@ -168,28 +168,38 @@
         'dispatch! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn dispatch! (op)
             when config/dev? $ println |Dispatch: op
-            match (typed/decode-control op)
-              (:some control)
-                reset! *reel $ typed/apply-control updater @*reel control
-              (:none)
-                let
-                    action $ match op
-                      (:states cursor data)
-                        Option :some $ schema/Op :states
-                          decode-map-as cursor $ List Tag
-                          , data
-                      (:content content)
-                        Option :some $ schema/Op :content $ js-ffi.contract/expect-string |content content
-                      (:hydrate-storage data)
-                        Option :some $ schema/Op :hydrate-storage $ schema/decode-store data
-                      _ $ do (eprintln "|Unknown op:" op) (Option :none)
-                  match action
-                    (:some value)
-                      reset! *reel $ typed/record-op updater @*reel value (generate-id!) (now-ms)
-                    (:none) &unit
+            if
+              = (enum-definition op) (Option :some typed/Control)
+              dispatch-resolved! $ decode-map-as op 'reel.typed/Control
+              match (typed/decode-control op)
+                (:some control) (dispatch-resolved! control)
+                (:none)
+                  let
+                      action $ match op
+                        (:states cursor data)
+                          Option :some $ schema/Op :states
+                            decode-map-as cursor $ List Tag
+                            , data
+                        (:content content)
+                          Option :some $ schema/Op :content $ js-ffi.contract/expect-string |content content
+                        (:hydrate-storage data)
+                          Option :some $ schema/Op :hydrate-storage $ schema/decode-store data
+                        _ $ do (eprintln "|Unknown op:" op) (Option :none)
+                    match action
+                      (:some value) (dispatch-resolved! value)
+                      (:none) &unit
             , &unit
           :examples $ []
           :schema $ quote $ Fn AnyEnum (-> Unit) (:features :js-ffi)
+        'dispatch-resolved! $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defn dispatch-resolved! (op)
+            reset! *reel $ match op
+              (reel.typed/Control control) (typed/apply-control updater @*reel control)
+              (app.schema/Op action)
+                typed/record-op updater @*reel action (generate-id!) (now-ms)
+            , &unit
+          :examples $ []
+          :schema $ quote $ Fn app.schema/ResolvedOp (-> Unit) (:features :js-ffi)
         'main! $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defn main! ()
             println "|Running mode:" $ if config/dev? |dev |release
@@ -240,7 +250,9 @@
           :code $ quote $ defn render-app! ()
             render-with! mount-target
               fn () $ comp-container @*reel
-              , dispatch!
+              fn (op)
+                hint-fn $ Fn app.schema/Op $ -> Unit
+                dispatch! op
           :examples $ []
           :schema $ quote $ Fn (-> Unit) (:features :js-ffi)
       :ns $ %{} 'NsEntry (:doc |)
@@ -260,10 +272,6 @@
             respo.ffi.browser :as dom
     'app.schema $ %{} 'FileEntry
       :defs $ {}
-        'DispatchOp $ %{} 'CodeEntry (:doc "|Respo 入口事件合同，容纳应用和 Reel 控制事件；代表值不发送。")
-          :code $ quote $ def DispatchOp (:: :unhandled)
-          :examples $ []
-          :schema $ quote AnyEnum
         'Op $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defenum Op
             :states (List Tag) Dynamic
@@ -271,6 +279,10 @@
             :hydrate-storage app.schema/Store
           :examples $ []
           :schema $ quote EnumDef
+        'ResolvedOp $ %{} 'CodeEntry (:doc |)
+          :code $ quote $ defunion ResolvedOp Op reel.typed/Control
+          :examples $ []
+          :schema $ quote UnionDef
         'Store $ %{} 'CodeEntry (:doc |)
           :code $ quote $ defstruct Store
             :states $ Map Tag Dynamic
