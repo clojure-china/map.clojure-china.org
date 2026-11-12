@@ -185,7 +185,7 @@
             println "|Running mode:" $ if config/dev? |dev |release
             render-app!
             add-watch! *reel :changes $ fn (r p)
-              hint-fn $ Fn (reel.typed/State app.schema/Op app.schema/Store) (reel.typed/State app.schema/Op app.schema/Store) (-> Unit)
+              hint-fn $ Fn (typed/State schema/Op schema/Store) (typed/State schema/Op schema/Store) (-> Unit)
               render-app!
             listen-devtools! |a on-control!
             match
@@ -224,7 +224,7 @@
             if (js-nullish? build-errors)
               do (remove-watch! *reel :changes) (clear-cache!)
                 add-watch! *reel :changes $ fn (reel prev)
-                  hint-fn $ Fn (reel.typed/State app.schema/Op app.schema/Store) (reel.typed/State app.schema/Op app.schema/Store) (-> Unit)
+                  hint-fn $ Fn (typed/State schema/Op schema/Store) (typed/State schema/Op schema/Store) (-> Unit)
                   render-app!
                 reset! *reel $ typed/refresh updater @*reel schema/store
                 hud! |ok~ |Ok
@@ -284,7 +284,7 @@
                   :content $ .unwrap $ get fields :content
                 , Store
           :examples $ []
-          :schema $ quote $ Fn Dynamic (-> Store)
+          :schema $ quote $ Fn Dynamic (-> Store) (:open :decode)
           :tests $ [] $ %{} 'TestEntry (:name |legacy-map-and-struct-archive)
             :code $ quote $ let
                 decoded $ decode-store $ {}
