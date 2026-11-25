@@ -20,9 +20,9 @@ https://github.com/calcit-lang/respo-calcit-workflow
 
 ### 使用者影响
 
-升级到正式 Calcit 和 `@calcit/procs` **0.44.0** 后，请重新安装依赖、生成 JS 并刷新。社区链接、存档键 `map.clj.im`、旧 Map 和 Struct 存档、60 秒保存及页面 HUD 沿用原有行为。
+升级到正式 Calcit 和 `@calcit/procs` **0.45.1** 后，请重新安装依赖、生成 JS 并刷新。社区链接、存档键 `map.clj.im`、旧 Map 和 Struct 存档、60 秒保存及页面 HUD 沿用原有行为。
 
-Reel 使用 `State<Op, Store>`。启动先校验存档并构造具名 `Op`，调试快捷键走独立的 `Control` 回调。两路在更新入口通过 `Op | Control` union 汇合。原状态路径继续接受 `List<Tag>`，恢复成功后才启用保存。正式依赖为 Respo **0.19.13**、Reel **0.11.5**、JS-FFI **0.2.19**。
+Reel 使用 `State<Op, Store>`。启动先校验存档并构造具名 `Op`，调试快捷键走独立的 `Control` 回调。两路在更新入口通过 `Op | Control` union 汇合。原状态路径继续接受 `List<Tag>`，恢复成功后才启用保存。正式依赖为 Respo **0.19.18**、Reel **0.11.9**、JS-FFI **0.2.24**。
 
 ### Development and deployment
 
